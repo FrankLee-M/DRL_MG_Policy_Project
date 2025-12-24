@@ -6,28 +6,34 @@ from gymnasium import spaces
 from gymnasium.utils import seeding
 from typing import Optional
 from typing import Optional, Any, Dict
-
+import os,sys
 
 from my_project.RA_obs.data_process import lambda_hv_data,res_data
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+project_dir = os.path.dirname(parent_dir)
+sys.path.append(project_dir)
+
 
 from envs.action_wrapper import ActionClipperWrapper_OffPolicy
 from envs.config_para_mg_Nd_50 import *
 from envs.env_inner_user import  User_SFB_Model
 
-from envs.surrogate.user_response_fitting_v1_3 import SurrogateUser
-surrogate_user = SurrogateUser(save_dir="my_project/RA_obs/user_response_model_v1_3")
+from envs.surrogate.user_response_fitting_v2_0 import SurrogateUser
+surrogate_user = SurrogateUser(save_dir="my_project/RA_obs/user_response_model_v2_0")
 
 """
 MG Surrogate Environment
 
-Version: v1_3
-Based on: v1_0
+Version: v2_0
+Based on: v1_2
 
 Major Changes:
-- [BREAKING] only change the imported surrogate model to v1_3
+- [BREAKING] only change the imported surrogate model to v2_0
 
 User Response Model:
-    - user_response_fitting_v1_3 (Complaint-cost-based)
+    - user_response_fitting_v2_0 (Complaint-cost-based)
 """
 
 #region get_price_rolling_quantile 
@@ -135,7 +141,8 @@ class MgSurrogateEnv(gym.Env):
 
     """
     metadata = {"render_modes": [], }  
-    
+#ANCHOR -  [修改] env.unit_costs，缩放 0.0001    
+
     def __init__(self,
                  surrogate_user = surrogate_user,
                  is_complaint_model: bool = True,
@@ -157,7 +164,7 @@ class MgSurrogateEnv(gym.Env):
                  user_uncertainty: float = 0.05,   # [新增] 用户响应的波动           
                  ):
         
-        self.unit_costs = unit_costs
+        self.unit_costs = unit_costs*0.0001  #【修改】 scale down 0.0001 for complaint cost calculation
         
         self.surrogate_user = surrogate_user
         self.realization_sigma = realization_sigma
@@ -230,8 +237,7 @@ class MgSurrogateEnv(gym.Env):
         self.obs_soc_index = obs_soc_index
         self.obs_res_index = obs_res_index
         self.obs_lmhv_index = obs_lmhv_index
-#FIXME - 此处 ？obs_time_dim or obs_time_index ？
-        self.obs_time_index = obs_time_dim
+#         self.obs_time_index = obs_time_dim
         
         self.action_last_indices = action_last_indices
         self.action_bound_indices = action_bound_indices
@@ -253,7 +259,7 @@ class MgSurrogateEnv(gym.Env):
         self.action_delta = np.array([delta_lp])
         self.complaint_cost = 0.0
         
-        #NOTE - 数据增强
+        #- 数据增强
         
         self._obs_shifted = False
         # On-demand initialized base views for observations and episode shift (in hours)
@@ -728,7 +734,7 @@ if __name__ == "__main__":
     env = ActionClipperWrapper_OffPolicy(env)
     
     # With action wrapper 
-    #NOTE -  action-scale-to [-1,1]
+    # action-scale-to [-1,1]
     
     for seed in range(10):
         action = 1.0* np.ones([action_dim,]) 

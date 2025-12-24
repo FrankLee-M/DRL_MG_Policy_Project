@@ -13,5 +13,8 @@
     ],
     "cursorpyright.analysis.extraPaths": [
         "./"
-    ]
+    ],
+    "diffEditor.ignoreTrimWhitespace": true
+
+
 }

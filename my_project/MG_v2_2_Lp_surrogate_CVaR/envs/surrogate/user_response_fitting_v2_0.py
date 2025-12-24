@@ -16,28 +16,20 @@ sys.path.append(project_dir)
 
 from envs.env_mg import MgComplaintFBEnv
 from my_project.RA_obs.data_process import lambda_hv_data
-
+from envs.config_para_mg_Nd_50 import begin_t,end_t
 
 """
-User Response Model v1.1
-BREAKING CHANGE
-    - is_user_dynamic= True
-    
-Target:
-    - Load (regression)
-    - Complaint Cost (regression)
+Version: v2_0
+Based on: v1_2
 
-Motivation:
-    - Replace complaint-based signal with cost-based proxy
-    - Improve reward smoothness and policy stability
+Major Changes:
+- [BREAKING] 对数据划分 训练、验证集、测试集 (Cost-based)
 
-Compatibility:
-    - NOT compatible with v0/v1
 """
 
 ### 拟合 投诉成本
 # [修改] 定义保存目录
-SAVE_DIR = "my_project/RA_obs/user_response_model_v1_1"
+SAVE_DIR = "my_project/RA_obs/user_response_model_v2_0"
 # [新增] 确保目录存在
 os.makedirs(SAVE_DIR, exist_ok=True)
 
@@ -45,13 +37,15 @@ class UserResponseCollector:
     """
     第一步：数据采集
     """
+#ANCHOR - [修改] start_idx/end_idx,与 MG-model-训练保持一致
     def __init__(self, start_month=5, end_month=6):
         self.env = MgComplaintFBEnv(
-            is_user_dynamic=True,
+            is_user_dynamic=False,
             train_mode=False
         )
-        self.start_idx = 0
-        self.end_idx = 8000
+        self.env.unit_costs *= 0.0001  
+        self.start_idx = begin_t
+        self.end_idx = end_t
         
     def collect_data(self):
         print(f"Start collecting data from hour {self.start_idx} to {self.end_idx}...")

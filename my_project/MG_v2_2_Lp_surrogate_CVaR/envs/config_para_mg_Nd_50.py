@@ -23,6 +23,11 @@ import matplotlib.pyplot as plt
 # data prediction 
 # Nd = 10 负荷 范围 2.0-25
 # res 范围：  40
+"""
+v0 : my_project/MG_v2_1_LpCVaR/envs/config_para_mg_Nd_50.py
+v1_2 : This version 
+修改 base_cost = 0.005, 将累计cost 缩放到 0-1 之间
+"""
 
 def get_complaint_unit_cost(base_cost=50.0):
     """
@@ -48,7 +53,7 @@ def get_complaint_unit_cost(base_cost=50.0):
     unit_costs = base_cost * hourly_factors
     return unit_costs
 
-unit_costs = get_complaint_unit_cost(50.0)
+unit_costs = get_complaint_unit_cost(base_cost=50)
 
 # env_config 
 # 在 5-6 月之间，随机初始化

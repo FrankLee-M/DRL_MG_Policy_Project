@@ -9,15 +9,17 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
-from stable_baselines3 import SAC
+
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
-from tools.utilities import get_base_env
+from tools.utilities import get_base_env, compute_cvar
 from envs.config_para_mg_Nd_50 import begin_t, end_t, test_begin_t, test_end_t
 from envs.action_wrapper import ActionClipperWrapper_OffPolicy
+from envs.surrogate.env_mg_surrogate_v2_0 import MgSurrogateEnv
+from algorithms.customerized_sac_v2_2 import DSAC
 
 '''
 可用于 
@@ -31,13 +33,13 @@ Strategy        | Avg Reward   | Avg Complaints-cost
     seed 参数获取，直接获取，不需要int保护
 -⚠️ 此版本保存的图片只是 最后一次测试的结果
 '''
-
 env_version = "v2_0"
-EXP_NAME = f"sac_training_env_surrogate_{env_version}" 
+EXP_NAME = f"sac_training_env_surrogate_cvar" 
 project_version = os.path.basename(os.path.normpath(parent_dir))
 
 BASE_LOG_DIR = f"./tensorboard_logs/{project_version}"
-TIMESTAMP = "110027"  # <--- 请修改为你实际运行生成的时间戳
+TIMESTAMP = "2025_12_24_184139"  # <--- 请修改为你实际运行生成的时间戳
+K_ROLLOUTS = 100  # K >= 100 to ensure statistical significance
 
 test_set=True  # If False, test on training set
 if test_set:
@@ -48,18 +50,13 @@ else:
     test_et = end_t
 
 
-def make_base_env(env_version: str):
-    if env_version == "v1_0":
-        from envs.surrogate.env_mg_surrogate_v1_0 import MgSurrogateEnv
-    elif env_version == "v1_1":
-        from envs.surrogate.env_mg_surrogate_v1_1 import MgSurrogateEnv
-    elif env_version == "v1_2":
-        from envs.surrogate.env_mg_surrogate_v1_2 import MgSurrogateEnv
-    elif env_version == "v1_3":
-        from envs.surrogate.env_mg_surrogate_v1_3 import MgSurrogateEnv
-    elif env_version == "v2_0":
-        from envs.surrogate.env_mg_surrogate_v2_0 import MgSurrogateEnv
-    return   MgSurrogateEnv( 
+def make_test_env(seed: int, param_path: str, cost_limit: float):
+    """
+    创建测试环境。
+    关键修改：必须包含 AugmentedStateWrapper 且 initial_e = cost_limit
+    """
+    # 1. Base Environment (Test Mode)
+    env = MgSurrogateEnv( 
         reward_scale=0.0001, 
         is_record=True, 
         train_mode=False,
@@ -67,14 +64,6 @@ def make_base_env(env_version: str):
         test_begin_t=test_bt,
         test_end_t=test_et
     )
-
-def make_test_env(seed: int, param_path: str, cost_limit: float):
-    """
-    创建测试环境。
-    关键修改：必须包含 AugmentedStateWrapper 且 initial_e = cost_limit
-    """
-    # 1. Base Environment (Test Mode)
-    env = make_base_env(env_version)
     env = ActionClipperWrapper_OffPolicy(env)
     env = DummyVecEnv([lambda: env]) # type: ignore
     
@@ -87,7 +76,7 @@ def make_test_env(seed: int, param_path: str, cost_limit: float):
     return env
 
 
-def evaluate_model(env, agent, test_episodes=100):
+def evaluate_model(env, agent, run_id,test_episodes=K_ROLLOUTS):
     """
     对比 RL Agent, Baseline A (Rule-based), 和 Baseline B (Random)
     """
@@ -208,7 +197,7 @@ def evaluate_model(env, agent, test_episodes=100):
             results['Random']['demands'] = trace_demands_r
 
     # --- 打印统计结果 ---
-    print("\n=== Final Results (Average over {} episodes) ===".format(test_episodes))
+    print(f"\n=== Final Results {run_id}")
     return results
 
 def plot_results(results,save_path):
@@ -263,7 +252,7 @@ def plot_results(results,save_path):
     plt.title("Demand Response")
     plt.legend()
     plt.tight_layout()
-    plt.savefig(os.path.join(save_path,f"comparison_strategy_test_{test_set}.png"))
+    plt.savefig(os.path.join(save_path,"comparison_strategy.png"))
     
     return summary_data
 
@@ -336,9 +325,9 @@ def main():
             
         dummy_env = make_test_env(seed, param_path, cost_limit)
     
-        model = SAC.load(model_path, env=dummy_env)
+        model = DSAC.load(model_path, env=dummy_env)
         
-        results = evaluate_model(dummy_env, model, test_episodes=100) # type: ignore
+        results = evaluate_model(dummy_env, model,run_id) # type: ignore
         summary_data = plot_results(results,output_dir)
         all_summary_data.extend(summary_data)
     
