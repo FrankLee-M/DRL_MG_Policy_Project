@@ -1,0 +1,10 @@
+data/
+tensorboard_logs/
+__pycache__/
+saved_models/
+saved_params/
+configs/
+data_saved/
+debug_tensorboard_logs/
+debug_data_saved/
+runs_simple/
