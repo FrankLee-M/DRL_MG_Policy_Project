@@ -27,16 +27,27 @@ from algorithms.customerized_sac_v2_2 import DSAC
 
 #NOTE - 测试 cvar 估计 vs cvar 真值
 
-env_version = "v1_0"
-EXP_NAME = f"sac_training_env_surrogate_cvar" 
+import argparse
+
+def get_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--timestamp", type=str, default="2025_12_24_222400")
+    parser.add_argument("--check_time_step", type=int, default=4)
+    parser.add_argument("--test_set", action="store_true")
+    parser.add_argument("--exp_name", type=str, default="sac_training_env_surrogate_cvar")
+    return parser.parse_args()
+args = get_args()
+
+env_version = "v2_0"
+EXP_NAME = args.exp_name
 project_version = os.path.basename(os.path.normpath(parent_dir))
 
 BASE_LOG_DIR = f"./tensorboard_logs/{project_version}"
-TIMESTAMP = "184139"  # <--- 请修改为你实际运行生成的时间戳
-K_ROLLOUTS = 1000  # K >= 100 to ensure statistical significance
-
-
-test_set=False  # If False, test on training set
+TIMESTAMP = args.timestamp  # <--- 请修改为你实际运行生成的时间戳
+K_ROLLOUTS = 200  # K >= 100 to ensure statistical significance
+# --- 新增：指定要检测的时间步 t ---
+CHECK_TIME_STEP = args.check_time_step  # 例如：检测第24个时间步的 Cost 分布 (t=0即为初始状态)
+test_set = args.test_set  # If False, test on training set
 #region
 if test_set:
     test_bt = test_begin_t+24
