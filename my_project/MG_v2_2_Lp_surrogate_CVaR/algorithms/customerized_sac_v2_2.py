@@ -373,10 +373,10 @@ class DSAC(SAC):
                 sorted_next_z, _ = torch.sort(all_next_z, dim=1)
                 
                 # TQC for Cost: 保留大的 (Risky/Conservative) 从n_drop 往后 
-                total_quantiles = sorted_next_z.shape[1]
-                n_drop = int(total_quantiles * self.drop_rate)
-                # n_keep = total_quantiles - n_drop
-                
+#ANCHOR - 单独计算每个网络需要丢弃的分位点数量再乘以网络数量（标准做法）
+                top_to_drop_per_net = int(self.num_quantiles * self.drop_rate)
+                n_drop = top_to_drop_per_net * self.n_critics
+                    
                 # [Batch, K] (Truncated)
                 target_next_z_truncated = sorted_next_z[:,n_drop:] 
 
