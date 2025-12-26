@@ -21,10 +21,12 @@ Complaint-number & complaint cost feeadback
 '''
 ###########################################
 # 修改 reset 函数
-print("MG_Model in Version-251219：Adding obs-noise in step func")
+# print("MG_Model in Version-251219：Adding obs-noise in step func")
 ##########################################
 
-
+'''
+    obs: week & month -index -> zero vector
+'''
 #region get_price_rolling_quantile 
 def get_price_rolling_quantile(index_t, window:int = 168):
     current_price = lambda_hv_data[index_t].copy()
@@ -403,7 +405,7 @@ class MgComplaintFBEnv(gym.Env):
 
         # 获取时间状态
         time_state = encode_time_index(self.index_t)
-
+        time_state[-4:]=0.0
         # user 相关状态 /
         # user_state = np.array([self.last_ave_sat_level, self.last_agg_load])
         user_state = np.array([self.complaint_cost, self.last_agg_load])

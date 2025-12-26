@@ -30,7 +30,9 @@ Version: v2_0
 Based on: v1_2
 
 Major Changes:
-- [BREAKING] only change the imported surrogate model to v2_0
+- [BREAKING] 
+    obs: week & month -index -> zero vector
+    change the imported surrogate model to v2_0
 
 User Response Model:
     - user_response_fitting_v2_0 (Complaint-cost-based)
@@ -424,7 +426,7 @@ class MgSurrogateEnv(gym.Env):
 
         # 获取时间状态
         time_state = encode_time_index(self.index_t)
-
+        time_state[-4:]=0.0
         # user 相关状态 /
         # user_state = np.array([self.last_ave_sat_level, self.last_agg_load])
         user_state = np.array([self.complaint_cost, self.last_agg_load])
