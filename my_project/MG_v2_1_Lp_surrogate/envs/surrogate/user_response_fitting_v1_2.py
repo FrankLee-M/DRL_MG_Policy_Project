@@ -16,6 +16,7 @@ sys.path.append(project_dir)
 
 from envs.env_mg import MgComplaintFBEnv
 from my_project.RA_obs.data_process import lambda_hv_data
+from envs.config_para_mg_Nd_50 import begin_t,end_t,complaint_cost_scale
 
 
 """
@@ -37,13 +38,13 @@ class UserResponseCollector:
     """
     第一步：数据采集
     """
-#ANCHOR - [修改] env.unit_costs，缩放 0.0001
+#ANCHOR - [修改] complaint_cost_scale
     def __init__(self, start_month=5, end_month=6):
         self.env = MgComplaintFBEnv(
             is_user_dynamic=False,
             train_mode=False
         )
-        self.env.unit_costs *= 0.0001  
+        self.complaint_cost_scale = complaint_cost_scale
         self.start_idx = 0
         self.end_idx = 8000
         
@@ -68,7 +69,7 @@ class UserResponseCollector:
             di, sat_i, comp_num = self.env.User.user_response([lp_action], hour_index)
             
             total_demand = np.sum(di)
-            complaint_cost = self.env.unit_costs[hour_index]*comp_num
+            complaint_cost = self.complaint_cost_scale * self.env.unit_costs[hour_index]*comp_num
             
             record = {
                 'time_idx': t,

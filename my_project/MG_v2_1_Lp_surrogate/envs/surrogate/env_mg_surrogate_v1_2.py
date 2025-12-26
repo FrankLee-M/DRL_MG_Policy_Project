@@ -165,8 +165,7 @@ class MgSurrogateEnv(gym.Env):
                  user_uncertainty: float = 0.05,           
                  ):
         
-        self.unit_costs = unit_costs*0.0001  #【修改】 scale down 0.0001 for complaint cost calculation
-        
+        self.unit_costs = unit_costs #在config 中修改         
         self.surrogate_user = surrogate_user
         self.realization_sigma = realization_sigma
         self.user_uncertainty = user_uncertainty

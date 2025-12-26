@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 # Nd = 10 负荷 范围 2.0-25
 # res 范围：  40
 
-def get_complaint_unit_cost(base_cost=50.0):
+def get_complaint_unit_cost(base_cost=5.0):
     """
     返回一个 24 小时的投诉单位成本向量 ($/次)。
     逻辑：
@@ -39,30 +39,30 @@ def get_complaint_unit_cost(base_cost=50.0):
     
     # 24小时系数曲线
     hourly_factors = np.array([
-        0.5, 0.5, 0.5, 0.5, 0.6, 0.8,  # 00-05: 深夜 (25-40元)
-        1.2, 1.5, 1.2, 1.0, 1.0, 1.0,  # 06-11: 早高峰 (60-75元)
-        1.0, 1.0, 1.0, 1.0, 1.2, 1.5,  # 12-17: 下午 (50-75元)
-        2.0, 2.5, 2.5, 2.0, 1.5, 1.0   # 18-23: 晚高峰 (100-125元) !!! 重点惩罚区域
+        0.5, 0.5, 0.5, 0.5, 0.6, 0.8,  # 00-05: 深夜 (2.5-4.0元)
+        1.2, 1.5, 1.2, 1.0, 1.0, 1.0,  # 06-11: 早高峰 (6.0-7.5元)
+        1.0, 1.0, 1.0, 1.0, 1.2, 1.5,  # 12-17: 下午 (5.0-7.5元)
+        2.0, 2.5, 2.5, 2.0, 1.5, 1.0   # 18-23: 晚高峰 (10.0-12.5元) !!! 重点惩罚区域
     ])
     
     unit_costs = base_cost * hourly_factors
     return unit_costs
 
-unit_costs = get_complaint_unit_cost(50.0)
-
+#ANCHOR - base- cost= 5.0 在训练网络时进行缩放
+unit_costs = get_complaint_unit_cost(5.0)
+complaint_cost_scale = 0.001
 # env_config 
-# 在 5-6 月之间，随机初始化
+# 5月前3周
 begin_t = 2880
-end_t = 4343
+end_t = 3360
 
 # One-week : 7.7 - 7.15  
-vali_begin_t = 4412
-vali_end_t = 4579
+# vali_begin_t = 4412
+# vali_end_t = 4579
 
-#  7.25 
-test_begin_t = 4412  # July 7st 23am
-# 4920  # July 25st 0am
-test_end_t = 4943 # July 25st 23am
+# 5月剩余日子
+test_begin_t = 3384  
+test_end_t = 3600 
 
 # day_summer = 5184
 # day_winter = 360
