@@ -42,13 +42,13 @@ import argparse
 def get_args():
     parser = argparse.ArgumentParser()
     # 定义你的参数，并给一个默认值
-    parser.add_argument("--drop_rate", type=float, default=0.05, help="drop rate")
+    parser.add_argument("--drop_rate", type=float, default=0.1, help="drop rate")
     parser.add_argument("--num_quantiles", type=int, default=20, help="num quantiles")
     parser.add_argument("--n_critics", type=int, default=2, help="number of critics")
     return parser.parse_args()
 
 args = get_args()
-total_timesteps = 100_000
+total_timesteps = 30_000
 learning_rate=3e-4
 # seed=42
 ALGORITHM = "SAC"
@@ -70,7 +70,7 @@ drop_rate = args.drop_rate
 
 # ====== 全局统一时间戳 (所有实验共享) ======
 timestamp = datetime.now().strftime("%Y_%m_%d_%H%M%S")
-exp_name = f"sac_training_env_surrogate_cvar"
+exp_name = f"sac_training_env_surrogate_cvar_fixed_ood_period"
 base_root = f"./tensorboard_logs/{project_version}/{exp_name}/{timestamp}"
 base_dirs = {
     "tensorboard_logs": os.path.join(base_root, "logs"),
@@ -198,7 +198,7 @@ def run_experiment(cost_limit,seed):
 # ==============================================================================
 if __name__ == "__main__":
 
-    cost_limits = [0.5,0.8]  # Example cost limits
+    cost_limits = [0.8]  # Example cost limits
     seeds = [100]         # Example seeds
 
     print(f"Starting Parallel Experiments: {exp_name}")

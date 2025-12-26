@@ -55,22 +55,19 @@ def get_complaint_unit_cost(base_cost=50.0):
 
 unit_costs = get_complaint_unit_cost(base_cost=50)
 
-# env_config 
-# 在 5-6 月之间，随机初始化
+# env_config： 5月 前3周
 begin_t = 2880
-end_t = 4343
+end_t = 3360
 
-# One-week : 7.7 - 7.15  
-vali_begin_t = 4412
-vali_end_t = 4579
+# One-week : 8.7 - 8.15  
+# vali_begin_t = 4412
+# vali_end_t = 4579
 
-#  7.25 
-test_begin_t = 4412  # July 7st 23am
-# 4920  # July 25st 0am
-test_end_t = 4943 # July 25st 23am
+#  8.21 - 8.27 
+test_begin_t = 3384  # July st 23am
+test_end_t = 3600 # July 25st 23am
 
-# day_summer = 5184
-# day_winter = 360
+
 
 
 

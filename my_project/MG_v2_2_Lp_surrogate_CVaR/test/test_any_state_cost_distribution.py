@@ -31,10 +31,10 @@ import argparse
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--timestamp", type=str, default="2025_12_24_222400")
+    parser.add_argument("--timestamp", type=str, default="2025_12_26_170209")
     parser.add_argument("--check_time_step", type=int, default=4)
     parser.add_argument("--test_set", action="store_true")
-    parser.add_argument("--exp_name", type=str, default="sac_training_env_surrogate_cvar")
+    parser.add_argument("--exp_name", type=str, default="sac_training_env_surrogate_cvar_fixed_ood_period")
     return parser.parse_args()
 args = get_args()
 
@@ -49,7 +49,7 @@ K_ROLLOUTS = 1000  # K >= 100 to ensure statistical significance
 CHECK_TIME_STEP = args.check_time_step  # 例如：检测第24个时间步的 Cost 分布 (t=0即为初始状态)
 test_set = args.test_set  # If False, test on training set
 if test_set:
-    test_bt = test_begin_t
+    test_bt = test_begin_t+24
     test_et = test_end_t
 else:
     test_bt = begin_t
