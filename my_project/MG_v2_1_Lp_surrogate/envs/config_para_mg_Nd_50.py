@@ -54,7 +54,7 @@ complaint_cost_scale = 0.001
 # env_config 
 # 5月前3周
 begin_t = 2880
-end_t = 3360
+end_t = 3383
 
 # One-week : 7.7 - 7.15  
 # vali_begin_t = 4412
