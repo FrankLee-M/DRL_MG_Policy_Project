@@ -25,10 +25,11 @@ from envs.callbacks import EpisodeReturnCallback
 from envs.action_wrapper import ActionClipperWrapper_OffPolicy
 from tools.utilities import format_tag
 from envs.config_para_mg_Nd_50 import (begin_t,T_slot,end_t)
-from envs.surrogate.env_mg_surrogate_v2_0 import MgSurrogateEnv
+from envs.env_mg import MgComplaintFBEnv
 from algorithms.customerized_sac_v2_2 import DSAC
 """
-training_env_surrogate_cvar v0:
+training_env_cvar v0:
+    - 使用真实的 user-response 数据进行训练
     - 使用 DSAC 算法在 MG Surrogate 环境中进行训练，目标是优化 CVaR 性能指标。
     - 主要测试 cost-critic 在 不同参数设置下的表现。
         - drop_rate: 0.05, 0.1，0.2
@@ -124,7 +125,7 @@ def run_experiment(cost_limit,seed):
     
     # 2. Environment Setup
     # Note: DSAC usually runs on 1 env, using DummyVecEnv for compatibility
-    env = MgSurrogateEnv( 
+    env = MgComplaintFBEnv( 
             reward_scale=reward_scale, 
             is_record=True, 
             train_mode=True, 
@@ -173,7 +174,7 @@ def run_experiment(cost_limit,seed):
         "gamma": gamma,
         "total_timesteps": total_timesteps,
         "algorithm": ALGORITHM,
-        "env": "MgSurrogateEnv",
+        "env": "MgComplaintFBEnv",
         "log_dir": current_log_dir,
         "csv_path": csv_path,
         "model_path": model_path,

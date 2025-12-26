@@ -148,7 +148,7 @@ class MgComplaintFBEnv(gym.Env):
                  user_uncertainty: float = 0.05,   # [新增] 用户响应的波动           
                  ):
         
-        self.unit_costs = unit_costs
+        self.unit_costs = unit_costs*0.0001 
         
         self.realization_sigma = realization_sigma
         self.user_uncertainty = user_uncertainty
@@ -220,8 +220,7 @@ class MgComplaintFBEnv(gym.Env):
         self.obs_soc_index = obs_soc_index
         self.obs_res_index = obs_res_index
         self.obs_lmhv_index = obs_lmhv_index
-#FIXME - 此处 ？obs_time_dim or obs_time_index ？
-        self.obs_time_index = obs_time_dim
+        # self.obs_time_index = obs_time_dim
         
         self.action_last_indices = action_last_indices
         self.action_bound_indices = action_bound_indices
@@ -403,8 +402,7 @@ class MgComplaintFBEnv(gym.Env):
 
         # 获取时间状态
         time_state = encode_time_index(self.index_t)
-
-        # user 相关状态 /
+        time_state[-4:] = 0.0          # user 相关状态 /
         # user_state = np.array([self.last_ave_sat_level, self.last_agg_load])
         user_state = np.array([self.complaint_cost, self.last_agg_load])
         if not self.is_complaint_model:

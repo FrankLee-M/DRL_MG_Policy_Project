@@ -49,6 +49,7 @@ def get_args():
 
 args = get_args()
 total_timesteps = 100_000
+
 learning_rate=3e-4
 # seed=42
 ALGORITHM = "SAC"
@@ -70,7 +71,7 @@ drop_rate = args.drop_rate
 
 # ====== 全局统一时间戳 (所有实验共享) ======
 timestamp = datetime.now().strftime("%Y_%m_%d_%H%M%S")
-exp_name = f"sac_training_env_surrogate_cvar_fixed_ood"
+exp_name = f"sac_training_env_surrogate_cvar_without_norm"
 base_root = f"./tensorboard_logs/{project_version}/{exp_name}/{timestamp}"
 base_dirs = {
     "tensorboard_logs": os.path.join(base_root, "logs"),
@@ -111,9 +112,9 @@ def run_experiment(cost_limit,seed):
     model_path = os.path.join(model_dir, f"{run_id}.zip")
 
     
-    param_dir = os.path.join(base_dirs["params"], run_id)
-    os.makedirs(param_dir, exist_ok=True)
-    param_path = os.path.join(param_dir, f"{run_id}.pkl")
+    # param_dir = os.path.join(base_dirs["params"], run_id)
+    # os.makedirs(param_dir, exist_ok=True)
+    # param_path = os.path.join(param_dir, f"{run_id}.pkl")
 
 
     config_dir = os.path.join(base_dirs["configs"], run_id)
@@ -135,13 +136,13 @@ def run_experiment(cost_limit,seed):
     monitored_env = Monitor(env)
     wrapped_env = ActionClipperWrapper_OffPolicy(monitored_env)
     vec_env = DummyVecEnv([lambda: wrapped_env])
-    vev_norm_env = VecNormalize(venv=vec_env,gamma=gamma,norm_obs=True,norm_reward=False)
+    # vev_norm_env = VecNormalize(venv=vec_env,gamma=gamma,norm_obs=True,norm_reward=False)
     
     # 3. Model Initialization (DSAC)
     # Pass the dynamic cost_limit and seed here
     model = DSAC(
         "MlpPolicy",
-        env=vev_norm_env,
+        env=vec_env,
         cost_limit=cost_limit,       # <--- Dynamic Parameter
         num_quantiles=num_quantiles,
         n_critics=n_critics,
@@ -161,7 +162,7 @@ def run_experiment(cost_limit,seed):
     model.learn(total_timesteps=total_timesteps, callback=callback)
     
     model.save(model_path)
-    vev_norm_env.save(param_path)
+    # vev_norm_env.save(param_path)
 
    
     config = {
@@ -177,7 +178,7 @@ def run_experiment(cost_limit,seed):
         "log_dir": current_log_dir,
         "csv_path": csv_path,
         "model_path": model_path,
-        "param_path":param_path,
+        # "param_path":param_path,
         "timestamp": timestamp,
         "env_version":env_version,
         "algorithm":"DSAC-v2-2",

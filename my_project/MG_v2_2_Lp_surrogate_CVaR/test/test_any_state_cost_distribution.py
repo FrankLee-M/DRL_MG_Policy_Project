@@ -31,10 +31,10 @@ import argparse
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--timestamp", type=str, default="2025_12_24_222400")
+    parser.add_argument("--timestamp", type=str, default="2025_12_25_162103")
     parser.add_argument("--check_time_step", type=int, default=4)
     parser.add_argument("--test_set", action="store_true")
-    parser.add_argument("--exp_name", type=str, default="sac_training_env_surrogate_cvar")
+    parser.add_argument("--exp_name", type=str, default="sac_training_env_surrogate_cvar_fixed_ood")
     return parser.parse_args()
 args = get_args()
 

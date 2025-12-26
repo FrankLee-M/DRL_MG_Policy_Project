@@ -424,7 +424,8 @@ class MgSurrogateEnv(gym.Env):
 
         # 获取时间状态
         time_state = encode_time_index(self.index_t)
-
+#ANCHOR -  隐去 week/month 信息
+        time_state[-4:] = 0.0  # 仅保留 hour 和 day
         # user 相关状态 /
         # user_state = np.array([self.last_ave_sat_level, self.last_agg_load])
         user_state = np.array([self.complaint_cost, self.last_agg_load])
